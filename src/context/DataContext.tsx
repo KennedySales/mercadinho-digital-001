@@ -1,8 +1,9 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { products as initialProducts, categories as initialCategories, customers as initialCustomers, purchases as initialPurchases } from '@/lib/data';
-import { Product, Category, Customer, Purchase, CartItem, PaymentMethod, PaymentStatus } from '@/lib/types';
+import { Product, Category, Customer, Purchase, CartItem, PaymentMethod, PaymentStatus, Discount } from '@/lib/types';
 import { useToast } from '@/components/ui/use-toast';
+import { getWhatsAppShareUrl } from '@/lib/utils';
 
 interface DataContextType {
   products: Product[];
@@ -17,10 +18,13 @@ interface DataContextType {
   updateCustomer: (customer: Customer) => void;
   deleteCustomer: (customerId: string) => void;
   updateCustomerBalance: (customerId: string, amount: number) => void;
-  addPurchase: (items: CartItem[], paymentMethod: PaymentMethod, paymentStatus: PaymentStatus, customerId?: string) => Purchase;
+  addPurchase: (items: CartItem[], paymentMethod: PaymentMethod, paymentStatus: PaymentStatus, customerId?: string, cashReceived?: number, cashChange?: number, discount?: Discount) => Purchase;
   getCustomerById: (id: string | undefined) => Customer | undefined;
   getProductById: (id: string) => Product | undefined;
   getCategoryById: (id: string) => Category | undefined;
+  shareToWhatsApp: (phone: string, message: string) => string;
+  generateDebtMessage: (customer: Customer) => string;
+  generatePromotionMessage: (products: Product[]) => string;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -116,8 +120,16 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   // Purchase functions
-  const addPurchase = (items: CartItem[], paymentMethod: PaymentMethod, paymentStatus: PaymentStatus, customerId?: string): Purchase => {
-    const total = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const addPurchase = (
+    items: CartItem[], 
+    paymentMethod: PaymentMethod, 
+    paymentStatus: PaymentStatus, 
+    customerId?: string, 
+    cashReceived?: number, 
+    cashChange?: number, 
+    discount?: Discount
+  ): Purchase => {
+    const total = calculateTotalWithDiscount(items, discount);
     const customer = customerId ? customers.find(c => c.id === customerId) : undefined;
     
     // Gera um id baseado em timestamp + random
@@ -130,7 +142,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
       total,
       paymentMethod,
       paymentStatus,
-      customer
+      customer,
+      cashReceived,
+      cashChange,
+      discount
     };
 
     setPurchases([...purchases, purchase]);
@@ -180,6 +195,43 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return categories.find(c => c.id === id);
   };
 
+  const calculateTotalWithDiscount = (items: CartItem[], discount?: Discount): number => {
+    const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+    
+    if (!discount) return subtotal;
+    
+    if (discount.type === 'percentage') {
+      const discountAmount = (discount.value / 100) * subtotal;
+      return subtotal - discountAmount;
+    } else if (discount.type === 'fixed') {
+      return Math.max(subtotal - discount.value, 0);
+    }
+    
+    return subtotal;
+  };
+
+  // WhatsApp Integration
+  const shareToWhatsApp = (phone: string, message: string): string => {
+    const formattedPhone = phone.replace(/\D/g, '');
+    return getWhatsAppShareUrl(`${formattedPhone}`, message);
+  };
+  
+  const generateDebtMessage = (customer: Customer): string => {
+    const debtAmount = Math.abs(customer.accountBalance);
+    return `Olá ${customer.name}, o Bairro Mercadinho informa que você possui um saldo devedor de ${debtAmount.toFixed(2)} reais. Por favor, entre em contato para regularizar sua situação.`;
+  };
+  
+  const generatePromotionMessage = (promotionProducts: Product[]): string => {
+    let message = "🛒 PROMOÇÕES DO DIA - Bairro Mercadinho 🛒\n\n";
+    
+    promotionProducts.forEach((product, index) => {
+      message += `${index + 1}. ${product.name} - ${(product.price).toFixed(2)} reais\n`;
+    });
+    
+    message += "\nVenha aproveitar enquanto durar o estoque!";
+    return message;
+  };
+
   return (
     <DataContext.Provider value={{
       products,
@@ -197,7 +249,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
       addPurchase,
       getCustomerById,
       getProductById,
-      getCategoryById
+      getCategoryById,
+      shareToWhatsApp,
+      generateDebtMessage,
+      generatePromotionMessage
     }}>
       {children}
     </DataContext.Provider>
