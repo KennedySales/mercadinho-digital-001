@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Menu, User, Package, Users } from 'lucide-react';
+import { ShoppingCart, Menu, User, Package, Users, BarChart2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCart } from '@/context/CartContext';
@@ -13,6 +13,7 @@ const Navbar = () => {
 
   const mainMenuItems = [
     { icon: <Package size={20} />, label: 'Produtos', path: '/' },
+    { icon: <BarChart2 size={20} />, label: 'Gerenciar Produtos', path: '/products' },
     { icon: <Users size={20} />, label: 'Clientes', path: '/customers' },
     { icon: <User size={20} />, label: 'Vendas', path: '/sales' },
   ];
