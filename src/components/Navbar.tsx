@@ -1,34 +1,22 @@
+
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Menu, User, Package, Users, BarChart2, CreditCard, MessageCircle, LogOut, Grid3X3, Folder } from 'lucide-react';
+import { ShoppingCart, Menu, User, Package, Users, BarChart2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCart } from '@/context/CartContext';
-import { useAuth } from '@/context/AuthContext';
 
 const Navbar = () => {
   const { getTotalItems } = useCart();
-  const { user, logout, isAdmin } = useAuth();
   const location = useLocation();
   const totalItems = getTotalItems();
 
-  const regularMenuItems = [
+  const mainMenuItems = [
     { icon: <Package size={20} />, label: 'Produtos', path: '/' },
-    { icon: <Users size={20} />, label: 'Clientes', path: '/customers' },
-    { icon: <CreditCard size={20} />, label: 'Gerenciar Dívidas', path: '/debts' },
-  ];
-
-  const adminMenuItems = [
     { icon: <BarChart2 size={20} />, label: 'Gerenciar Produtos', path: '/products' },
+    { icon: <Users size={20} />, label: 'Clientes', path: '/customers' },
     { icon: <User size={20} />, label: 'Vendas', path: '/sales' },
-    { icon: <MessageCircle size={20} />, label: 'Promoções', path: '/promotions' },
-    { icon: <Folder size={20} />, label: 'Categorias', path: '/categories' },
   ];
-
-  // Combine menus based on user role
-  const mainMenuItems = isAdmin 
-    ? [...regularMenuItems, ...adminMenuItems]
-    : regularMenuItems;
 
   const isActive = (path: string) => {
     if (path === '/' && location.pathname === '/') return true;
@@ -50,21 +38,6 @@ const Navbar = () => {
             <SheetContent side="left" className="w-64">
               <div className="py-4">
                 <h2 className="text-lg font-poppins font-bold text-carrefour-blue mb-6">Bairro Mercadinho</h2>
-                <div className="mb-4 pb-4 border-b">
-                  <div className="flex items-center mb-2">
-                    <User size={16} className="mr-2 text-gray-500" />
-                    <span className="font-medium">{user?.username || 'Usuário'}</span>
-                    {isAdmin && <span className="ml-2 px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded-full">Admin</span>}
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={logout}
-                    className="flex items-center w-full text-red-600 border-red-200 hover:bg-red-50"
-                  >
-                    <LogOut size={16} className="mr-2" /> Sair
-                  </Button>
-                </div>
                 <nav className="space-y-2">
                   {mainMenuItems.map((item) => (
                     <Link
@@ -109,18 +82,8 @@ const Navbar = () => {
           ))}
         </nav>
 
-        {/* User Menu & Cart Icon */}
-        <div className="flex items-center space-x-4">
-          <div className="hidden md:flex items-center">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={logout} 
-              className="text-red-600 hover:bg-red-50 hover:text-red-700"
-            >
-              <LogOut size={16} className="mr-2" /> Sair
-            </Button>
-          </div>
+        {/* Cart Icon */}
+        <div className="flex items-center">
           <Link to="/cart">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart size={22} />

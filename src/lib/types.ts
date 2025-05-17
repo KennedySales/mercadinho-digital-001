@@ -14,8 +14,6 @@ export interface Category {
   id: string;
   name: string;
   icon: string;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 export interface CartItem {
@@ -41,23 +39,7 @@ export interface Purchase {
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   customer?: Customer;
-  cashReceived?: number;
-  cashChange?: number;
-  discount?: Discount;
 }
 
-export interface Discount {
-  type: 'percentage' | 'fixed';
-  value: number;
-  description?: string;
-}
-
-export type PaymentMethod = 'cash' | 'credit_card' | 'debit_card' | 'pix' | 'account';
+export type PaymentMethod = 'cash' | 'credit_card' | 'pix' | 'account';
 export type PaymentStatus = 'paid' | 'pending';
-
-export interface File {
-  name: string;
-  url: string;
-  size?: number;
-  type?: string;
-}

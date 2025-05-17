@@ -57,32 +57,6 @@ export function calculateDaysUntilExpiry(expiryDate: string | null): number | nu
   return differenceInDays;
 }
 
-export function getWhatsAppShareUrl(phone: string, text: string): string {
-  return `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(text)}`;
-}
-
-export function formatPhoneNumber(phone: string): string {
-  // Strip non-numeric characters
-  const cleaned = phone.replace(/\D/g, '');
-  
-  // Format as (XX) XXXXX-XXXX
-  if (cleaned.length === 11) {
-    return `(${cleaned.substring(0, 2)}) ${cleaned.substring(2, 7)}-${cleaned.substring(7, 11)}`;
-  }
-  
-  // Format as (XX) XXXX-XXXX
-  if (cleaned.length === 10) {
-    return `(${cleaned.substring(0, 2)}) ${cleaned.substring(2, 6)}-${cleaned.substring(6, 10)}`;
-  }
-  
-  // Return original if not a standard Brazilian format
-  return phone;
-}
-
-export function calculateDiscount(originalPrice: number, discountType: 'percentage' | 'fixed', discountValue: number): number {
-  if (discountType === 'percentage') {
-    return originalPrice - (originalPrice * (discountValue / 100));
-  } else {
-    return Math.max(originalPrice - discountValue, 0);
-  }
+export function getWhatsAppShareUrl(text: string): string {
+  return `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
 }
