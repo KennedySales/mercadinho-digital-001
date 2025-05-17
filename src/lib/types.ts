@@ -1,6 +1,4 @@
 
-import { IconProps } from "lucide-react";
-
 export interface Product {
   id: string;
   name: string;

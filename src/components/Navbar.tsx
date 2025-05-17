@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingCart, Menu, User, Package, Users, BarChart2, CreditCard, MessageCircle, LogOut, Grid3X3, Category } from 'lucide-react';
+import { ShoppingCart, Menu, User, Package, Users, BarChart2, CreditCard, MessageCircle, LogOut, Grid3X3, Folder } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCart } from '@/context/CartContext';
@@ -23,7 +22,7 @@ const Navbar = () => {
     { icon: <BarChart2 size={20} />, label: 'Gerenciar Produtos', path: '/products' },
     { icon: <User size={20} />, label: 'Vendas', path: '/sales' },
     { icon: <MessageCircle size={20} />, label: 'Promoções', path: '/promotions' },
-    { icon: <Category size={20} />, label: 'Categorias', path: '/categories' },
+    { icon: <Folder size={20} />, label: 'Categorias', path: '/categories' },
   ];
 
   // Combine menus based on user role

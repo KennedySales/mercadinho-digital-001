@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useData } from '@/context/DataContext';
 import { Category } from '@/lib/types';
@@ -7,7 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash, Category as CategoryIcon } from 'lucide-react';
+import { Plus, Edit, Trash, Folder } from 'lucide-react';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -162,7 +161,7 @@ const CategoryManagementPage = () => {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center">
                 <div className="h-8 w-8 rounded-full bg-carrefour-blue flex items-center justify-center text-white mr-3">
-                  <CategoryIcon size={16} />
+                  <Folder size={16} />
                 </div>
                 {category.name}
               </CardTitle>
