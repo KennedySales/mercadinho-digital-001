@@ -39,6 +39,15 @@ export interface Purchase {
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   customer?: Customer;
+  cashReceived?: number;
+  cashChange?: number;
+  discount?: Discount;
+}
+
+export interface Discount {
+  type: 'percentage' | 'fixed';
+  value: number;
+  description?: string;
 }
 
 export type PaymentMethod = 'cash' | 'credit_card' | 'pix' | 'account';

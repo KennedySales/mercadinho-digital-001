@@ -12,6 +12,8 @@ import CustomersPage from "./pages/CustomersPage";
 import CartPage from "./pages/CartPage";
 import SalesPage from "./pages/SalesPage";
 import ProductsManagementPage from "./pages/ProductsManagementPage";
+import DebtManagementPage from "./pages/DebtManagementPage";
+import PromotionsPage from "./pages/PromotionsPage";
 import Navbar from "./components/Navbar";
 
 const queryClient = new QueryClient();
@@ -31,6 +33,8 @@ const App = () => (
                   <Route path="/sales" element={<SalesPage />} />
                   <Route path="/cart" element={<CartPage />} />
                   <Route path="/products" element={<ProductsManagementPage />} />
+                  <Route path="/debts" element={<DebtManagementPage />} />
+                  <Route path="/promotions" element={<PromotionsPage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
