@@ -9,11 +9,23 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatCurrency } from '@/lib/utils';
-import { User, UserPlus, Phone, Mail, Home, Calendar, CreditCard } from 'lucide-react';
+import { User, UserPlus, Phone, Mail, Home, Calendar, CreditCard, Edit, Trash, Share2 } from 'lucide-react';
 import SearchBar from '@/components/SearchBar';
+import { Link } from 'react-router-dom';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const CustomersPage = () => {
-  const { customers, addCustomer } = useData();
+  const { customers, addCustomer, deleteCustomer, shareToWhatsApp, generateDebtMessage } = useData();
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>(customers);
   const [newCustomer, setNewCustomer] = useState<Partial<Customer>>({
     name: '',
@@ -24,6 +36,8 @@ const CustomersPage = () => {
     purchaseHistory: []
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleSearch = (term: string) => {
     if (!term) {
@@ -72,6 +86,18 @@ const CustomersPage = () => {
     });
     
     setIsDialogOpen(false);
+  };
+
+  const handleDeleteCustomer = (id: string) => {
+    deleteCustomer(id);
+    setIsDeleteDialogOpen(false);
+    setCustomerToDelete(null);
+  };
+
+  const handleShareDebt = (customer: Customer) => {
+    const message = generateDebtMessage(customer);
+    const whatsappUrl = shareToWhatsApp(customer.phone, message);
+    window.open(whatsappUrl, '_blank');
   };
 
   return (
@@ -185,13 +211,73 @@ const CustomersPage = () => {
                       </div>
                     )}
                     {customer.address && (
-                      <div className="flex items-center">
+                      <div className="flex items-center mb-2">
                         <Home size={16} className="mr-2 text-gray-500" />
                         <span className="text-sm">{customer.address}</span>
                       </div>
                     )}
                     {!customer.email && !customer.address && (
                       <p className="text-sm text-gray-500">Nenhuma informação adicional</p>
+                    )}
+                    
+                    <div className="flex mt-4 space-x-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        asChild
+                        className="flex-1"
+                      >
+                        <Link to={`/customers/${customer.id}/edit`}>
+                          <Edit size={14} className="mr-1" /> Editar
+                        </Link>
+                      </Button>
+                      
+                      <AlertDialog 
+                        open={isDeleteDialogOpen && customerToDelete === customer.id} 
+                        onOpenChange={(open) => {
+                          setIsDeleteDialogOpen(open);
+                          if (!open) setCustomerToDelete(null);
+                        }}
+                      >
+                        <AlertDialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                            onClick={() => setCustomerToDelete(customer.id)}
+                          >
+                            <Trash size={14} className="mr-1" /> Excluir
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Excluir cliente</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tem certeza que deseja excluir {customer.name}? Esta ação não pode ser desfeita.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => handleDeleteCustomer(customer.id)}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              Excluir
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                    
+                    {customer.accountBalance < 0 && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="w-full mt-2 border-blue-200 text-blue-600 hover:bg-blue-50"
+                        onClick={() => handleShareDebt(customer)}
+                      >
+                        <Share2 size={14} className="mr-1" /> Notificar sobre dívida
+                      </Button>
                     )}
                   </TabsContent>
                   

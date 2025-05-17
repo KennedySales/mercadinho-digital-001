@@ -1,4 +1,6 @@
 
+import { IconProps } from "lucide-react";
+
 export interface Product {
   id: string;
   name: string;
@@ -14,6 +16,8 @@ export interface Category {
   id: string;
   name: string;
   icon: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CartItem {
@@ -50,5 +54,12 @@ export interface Discount {
   description?: string;
 }
 
-export type PaymentMethod = 'cash' | 'credit_card' | 'pix' | 'account';
+export type PaymentMethod = 'cash' | 'credit_card' | 'debit_card' | 'pix' | 'account';
 export type PaymentStatus = 'paid' | 'pending';
+
+export interface File {
+  name: string;
+  url: string;
+  size?: number;
+  type?: string;
+}

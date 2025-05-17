@@ -1,8 +1,8 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { products as initialProducts, categories as initialCategories, customers as initialCustomers, purchases as initialPurchases } from '@/lib/data';
-import { Product, Category, Customer, Purchase, CartItem, PaymentMethod, PaymentStatus, Discount } from '@/lib/types';
-import { useToast } from '@/components/ui/use-toast';
+import { Product, Category, Customer, Purchase, CartItem, PaymentMethod, PaymentStatus, Discount, File } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
 import { getWhatsAppShareUrl } from '@/lib/utils';
 
 interface DataContextType {
@@ -25,6 +25,10 @@ interface DataContextType {
   shareToWhatsApp: (phone: string, message: string) => string;
   generateDebtMessage: (customer: Customer) => string;
   generatePromotionMessage: (products: Product[]) => string;
+  addCategory: (category: Category) => void;
+  updateCategory: (category: Category) => void;
+  deleteCategory: (categoryId: string) => void;
+  uploadProductImage: (file: File) => string;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -74,6 +78,52 @@ export function DataProvider({ children }: { children: ReactNode }) {
       }
       return p;
     }));
+  };
+
+  // Category functions
+  const addCategory = (category: Category) => {
+    if (!category.id) {
+      category.id = Math.random().toString(36).substring(2, 15);
+    }
+    setCategories([...categories, category]);
+    toast({
+      title: "Categoria adicionada",
+      description: `${category.name} foi adicionada com sucesso`,
+    });
+  };
+
+  const updateCategory = (category: Category) => {
+    setCategories(categories.map(c => (c.id === category.id ? category : c)));
+    toast({
+      title: "Categoria atualizada",
+      description: `${category.name} foi atualizada com sucesso`,
+    });
+  };
+
+  const deleteCategory = (categoryId: string) => {
+    const categoryToDelete = categories.find(c => c.id === categoryId);
+    if (categoryToDelete) {
+      // Check if any products use this category
+      const productsWithCategory = products.filter(p => p.category === categoryId);
+      if (productsWithCategory.length > 0) {
+        toast({
+          title: "Atenção",
+          description: `Existem ${productsWithCategory.length} produtos nesta categoria. Eles ficarão sem categoria definida.`,
+          variant: "default",
+        });
+        
+        // Update products to have no category
+        setProducts(products.map(p => 
+          p.category === categoryId ? { ...p, category: '' } : p
+        ));
+      }
+      
+      setCategories(categories.filter(c => c.id !== categoryId));
+      toast({
+        title: "Categoria removida",
+        description: `${categoryToDelete.name} foi removida com sucesso`,
+      });
+    }
   };
 
   // Customer functions
@@ -181,6 +231,27 @@ export function DataProvider({ children }: { children: ReactNode }) {
     return purchase;
   };
 
+  // Image handling for products
+  const uploadProductImage = (file: File): string => {
+    // In a real app, this would upload to a server or cloud storage
+    // For now, we'll just return a fake URL/data URL as it's a demo
+    
+    // If it's already a URL or data URL
+    if (file.url && (file.url.startsWith('http') || file.url.startsWith('data:'))) {
+      return file.url;
+    }
+    
+    // Create a mock URL
+    const mockUrl = `https://source.unsplash.com/random/300x200?product&${Date.now()}`;
+    
+    toast({
+      title: "Imagem carregada",
+      description: `${file.name} foi carregada com sucesso`,
+    });
+    
+    return mockUrl;
+  };
+
   // Helper functions
   const getCustomerById = (id: string | undefined) => {
     if (!id) return undefined;
@@ -252,7 +323,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
       getCategoryById,
       shareToWhatsApp,
       generateDebtMessage,
-      generatePromotionMessage
+      generatePromotionMessage,
+      addCategory,
+      updateCategory,
+      deleteCategory,
+      uploadProductImage
     }}>
       {children}
     </DataContext.Provider>
